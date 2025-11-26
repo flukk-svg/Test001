@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="th">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบลงทะเบียนอุปกรณ์คอมพิวเตอร์</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Sarabun', 'Tahoma', sans-serif;
+      width: 100%;
+      height: 100%;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    .app-container {
+      width: 100%;
+      min-height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 32px 24px;
+    }
+    
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 8px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .page-subtitle {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+    }
+    
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    @media (max-width: 968px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2d3748;
+      margin: 0 0 24px 0;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #667eea;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+    
+    .required {
+      color: #e53e3e;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Sarabun', 'Tahoma', sans-serif;
+    }
+    
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    
+    .submit-button {
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Sarabun', 'Tahoma', sans-serif;
+    }
+    
+    .submit-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .submit-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 16px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Sarabun', 'Tahoma', sans-serif;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .filter-select {
+      padding: 10px 16px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Sarabun', 'Tahoma', sans-serif;
+    }
+    
+    .device-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    
+    .device-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .device-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    .device-list::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 4px;
+    }
+    
+    .device-list::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
+    
+    .device-item {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .device-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+    
+    .device-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+    
+    .device-id {
+      font-size: 18px;
+      font-weight: 700;
+      color: #667eea;
+    }
+    
+    .device-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      margin: 4px 0;
+    }
+    
+    .device-info {
+      font-size: 14px;
+      color: #718096;
+      margin: 4px 0;
+    }
+    
+    .device-label {
+      font-weight: 600;
+      color: #4a5568;
+    }
+    
+    .department-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #667eea;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+    
+    .delete-button {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      background: #e53e3e;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Sarabun', 'Tahoma', sans-serif;
+    }
+    
+    .delete-button:hover {
+      background: #c53030;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #718096;
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .empty-text {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: #48bb78;
+      color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .toast.error {
+      background: #e53e3e;
+    }
+    
+    .device-count {
+      font-size: 14px;
+      color: #718096;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container">
+   <div class="main-content">
+    <div class="page-header">
+     <h1 class="page-title" id="pageTitle">ระบบลงทะเบียนอุปกรณ์คอมพิวเตอร์</h1>
+     <p class="page-subtitle" id="hospitalName">โรงพยาบาล</p>
+    </div>
+    <div class="content-grid">
+     <div class="card">
+      <h2 class="card-title" id="formTitle">ลงทะเบียนอุปกรณ์ใหม่</h2>
+      <form id="deviceForm">
+       <div class="form-group"><label for="hospital" class="form-label">โรงพยาบาล <span class="required">*</span></label> <select id="hospital" class="form-select" required> <option value="">เลือกโรงพยาบาล</option> <option value="โรงพยาบาลรวมแพทย์ยโสธร">โรงพยาบาลรวมแพทย์ยโสธร</option> <option value="โรงพยาบาลนายแพทย์หาญ">โรงพยาบาลนายแพทย์หาญ</option> </select>
+       </div>
+       <div class="form-group"><label for="deviceId" class="form-label">รหัสทรัพย์สิน <span class="required">*</span></label> <input type="text" id="deviceId" class="form-input" placeholder="เช่น PC-001" required>
+       </div>
+       <div class="form-group"><label for="deviceName" class="form-label">ชื่อเครื่อง <span class="required">*</span></label> <input type="text" id="deviceName" class="form-input" placeholder="เช่น Dell OptiPlex 7090" required>
+       </div>
+       <div class="form-group"><label for="deviceType" class="form-label">ประเภทอุปกรณ์ <span class="required">*</span></label> <select id="deviceType" class="form-select" required> <option value="">เลือกประเภท</option> <option value="คอมพิวเตอร์">คอมพิวเตอร์</option> <option value="Notebook">Notebook</option> <option value="All In One">All In One</option> <option value="ปริ้นเตอร์">ปริ้นเตอร์</option> <option value="Scanner">Scanner</option> <option value="Monitor">Monitor</option> <option value="UPS">UPS</option> <option value="อื่นๆ">อื่นๆ</option> </select>
+       </div>
+       <div class="form-group"><label for="userName" class="form-label">ชื่อผู้ใช้งาน <span class="required">*</span></label> <input type="text" id="userName" class="form-input" placeholder="เช่น นายสมชาย ใจดี" required>
+       </div>
+       <div class="form-group"><label for="department" class="form-label">แผนก <span class="required">*</span></label> <select id="department" class="form-select" required> <option value="">เลือกแผนก</option> <option value="พิเศษชั้น 3">พิเศษชั้น 3</option> <option value="พิเศษชั้น 2">พิเศษชั้น 2</option> <option value="ไอที">ไอที</option> <option value="จัดซื้อ">จัดซื้อ</option> <option value="OPD">OPD</option> <option value="หน้าห้องตรวจ">หน้าห้องตรวจ</option> <option value="ห้องตรวจ">ห้องตรวจ</option> <option value="VIP Garden">VIP Garden</option> <option value="LAP">LAP</option> <option value="การเงิน">การเงิน</option> <option value="เวชระเบียน">เวชระเบียน</option> <option value="ประชาสัมพันธ์">ประชาสัมพันธ์</option> <option value="ห้องยา">ห้องยา</option> <option value="สต๊อคยา">สต๊อคยา</option> <option value="เวรเปล">เวรเปล</option> <option value="ER">ER</option> <option value="คลังพัสดุ">คลังพัสดุ</option> <option value="คลังยา">คลังยา</option> <option value="VIP Gold">VIP Gold</option> <option value="ไตเทียม">ไตเทียม</option> <option value="ห้อง CT">ห้อง CT</option> <option value="X-Ray">X-Ray</option> <option value="ห้องผู้จัดการฝ่ายการพยาบาล">ห้องผู้จัดการฝ่ายการพยาบาล</option> <option value="Ward VIP Gold 2">Ward VIP Gold 2</option> <option value="ห้องผ่าตัด">ห้องผ่าตัด</option> <option value="แผนกช่าง">แผนกช่าง</option> <option value="แผนกจ่ายกลาง">แผนกจ่ายกลาง</option> <option value="สำนักงาน">สำนักงาน</option> <option value="จป.">จป.</option> <option value="ฝ่ายบุคคล">ฝ่ายบุคคล</option> <option value="ห้องประชุมชั้น 2">ห้องประชุมชั้น 2</option> <option value="แผนการตลาด">แผนการตลาด</option> <option value="CEO">CEO</option> <option value="HIFU">HIFU</option> <option value="อื่นๆ">อื่นๆ</option> </select>
+       </div>
+       <div class="form-group"><label for="detail" class="form-label">รายละเอียดเพิ่มเติม</label> <textarea id="detail" class="form-textarea" placeholder="ระบุข้อมูลเพิ่มเติม (ถ้ามี)"></textarea>
+       </div><button type="submit" class="submit-button" id="submitButton"> <span id="submitButtonText">บันทึกข้อมูล</span> </button>
+      </form>
+     </div>
+     <div class="card">
+      <h2 class="card-title" id="listTitle">รายการอุปกรณ์ทั้งหมด</h2>
+      <div class="filter-bar"><input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาด้วยรหัส, ชื่อเครื่อง, หรือผู้ใช้งาน"> <select id="filterHospital" class="filter-select"> <option value="">ทุกโรงพยาบาล</option> <option value="โรงพยาบาลรวมแพทย์ยโสธร">โรงพยาบาลรวมแพทย์ยโสธร</option> <option value="โรงพยาบาลนายแพทย์หาญ">โรงพยาบาลนายแพทย์หาญ</option> </select> <select id="filterType" class="filter-select"> <option value="">ทุกประเภท</option> <option value="คอมพิวเตอร์">คอมพิวเตอร์</option> <option value="Notebook">Notebook</option> <option value="All In One">All In One</option> <option value="ปริ้นเตอร์">ปริ้นเตอร์</option> <option value="Scanner">Scanner</option> <option value="Monitor">Monitor</option> <option value="UPS">UPS</option> <option value="อื่นๆ">อื่นๆ</option> </select> <select id="filterDepartment" class="filter-select"> <option value="">ทุกแผนก</option> <option value="พิเศษชั้น 3">พิเศษชั้น 3</option> <option value="พิเศษชั้น 2">พิเศษชั้น 2</option> <option value="ไอที">ไอที</option> <option value="จัดซื้อ">จัดซื้อ</option> <option value="OPD">OPD</option> <option value="หน้าห้องตรวจ">หน้าห้องตรวจ</option> <option value="ห้องตรวจ">ห้องตรวจ</option> <option value="VIP Garden">VIP Garden</option> <option value="LAP">LAP</option> <option value="การเงิน">การเงิน</option> <option value="เวชระเบียน">เวชระเบียน</option> <option value="ประชาสัมพันธ์">ประชาสัมพันธ์</option> <option value="ห้องยา">ห้องยา</option> <option value="สต๊อคยา">สต๊อคยา</option> <option value="เวรเปล">เวรเปล</option> <option value="ER">ER</option> <option value="คลังพัสดุ">คลังพัสดุ</option> <option value="คลังยา">คลังยา</option> <option value="VIP Gold">VIP Gold</option> <option value="ไตเทียม">ไตเทียม</option> <option value="ห้อง CT">ห้อง CT</option> <option value="X-Ray">X-Ray</option> <option value="ห้องผู้จัดการฝ่ายการพยาบาล">ห้องผู้จัดการฝ่ายการพยาบาล</option> <option value="Ward VIP Gold 2">Ward VIP Gold 2</option> <option value="ห้องผ่าตัด">ห้องผ่าตัด</option> <option value="แผนกช่าง">แผนกช่าง</option> <option value="แผนกจ่ายกลาง">แผนกจ่ายกลาง</option> <option value="สำนักงาน">สำนักงาน</option> <option value="จป.">จป.</option> <option value="ฝ่ายบุคคล">ฝ่ายบุคคล</option> <option value="ห้องประชุมชั้น 2">ห้องประชุมชั้น 2</option> <option value="แผนการตลาด">แผนการตลาด</option> <option value="CEO">CEO</option> <option value="HIFU">HIFU</option> <option value="อื่นๆ">อื่นๆ</option> </select>
+      </div>
+      <div class="device-count" id="deviceCount">
+       กำลังโหลด...
+      </div>
+      <div class="device-list" id="deviceList">
+       <div class="empty-state">
+        <div class="empty-icon">
+         💻
+        </div>
+        <p class="empty-text">ยังไม่มีข้อมูลอุปกรณ์</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const defaultConfig = {
+      page_title: "ระบบลงทะเบียนอุปกรณ์คอมพิวเตอร์",
+      form_title: "ลงทะเบียนอุปกรณ์ใหม่",
+      submit_button_text: "บันทึกข้อมูล",
+      list_title: "รายการอุปกรณ์ทั้งหมด",
+      background_color: "#667eea",
+      surface_color: "#ffffff",
+      text_color: "#2d3748",
+      primary_action_color: "#667eea",
+      secondary_action_color: "#e53e3e",
+      font_family: "Sarabun",
+      font_size: 16
+    };
+
+    let allDevices = [];
+    let isSubmitting = false;
+
+    const dataHandler = {
+      onDataChanged(data) {
+        allDevices = data;
+        renderDeviceList();
+        updateDeviceCount();
+      }
+    };
+
+    async function onConfigChange(config) {
+      const pageTitle = config.page_title || defaultConfig.page_title;
+      const formTitle = config.form_title || defaultConfig.form_title;
+      const submitButtonText = config.submit_button_text || defaultConfig.submit_button_text;
+      const listTitle = config.list_title || defaultConfig.list_title;
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryActionColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryActionColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const fontSize = config.font_size || defaultConfig.font_size;
+
+      document.getElementById('pageTitle').textContent = pageTitle;
+      document.getElementById('formTitle').textContent = formTitle;
+      document.getElementById('submitButtonText').textContent = submitButtonText;
+      document.getElementById('listTitle').textContent = listTitle;
+
+      document.querySelector('.app-container').style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor} 100%)`;
+      document.querySelectorAll('.card').forEach(card => {
+        card.style.background = surfaceColor;
+      });
+      document.querySelectorAll('.card-title').forEach(title => {
+        title.style.color = textColor;
+        title.style.borderBottomColor = primaryActionColor;
+      });
+      document.querySelector('.submit-button').style.background = `linear-gradient(135deg, ${primaryActionColor} 0%, ${primaryActionColor} 100%)`;
+      document.querySelectorAll('.delete-button').forEach(btn => {
+        btn.style.background = secondaryActionColor;
+      });
+      document.querySelectorAll('.department-badge').forEach(badge => {
+        badge.style.background = primaryActionColor;
+      });
+      document.querySelectorAll('.device-id').forEach(id => {
+        id.style.color = primaryActionColor;
+      });
+
+      const baseFontStack = 'Tahoma, sans-serif';
+      document.body.style.fontFamily = `${fontFamily}, ${baseFontStack}`;
+      document.querySelector('.page-title').style.fontSize = `${fontSize * 2.25}px`;
+      document.querySelector('.page-subtitle').style.fontSize = `${fontSize}px`;
+      document.querySelectorAll('.card-title').forEach(title => {
+        title.style.fontSize = `${fontSize * 1.375}px`;
+      });
+      document.querySelectorAll('.form-label').forEach(label => {
+        label.style.fontSize = `${fontSize * 0.875}px`;
+      });
+      document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
+        input.style.fontSize = `${fontSize * 0.9375}px`;
+      });
+      document.querySelector('.submit-button').style.fontSize = `${fontSize}px`;
+      document.querySelectorAll('.device-id').forEach(id => {
+        id.style.fontSize = `${fontSize * 1.125}px`;
+      });
+      document.querySelectorAll('.device-name').forEach(name => {
+        name.style.fontSize = `${fontSize}px`;
+      });
+      document.querySelectorAll('.device-info').forEach(info => {
+        info.style.fontSize = `${fontSize * 0.875}px`;
+      });
+    }
+
+    async function initializeApp() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          showToast('เกิดข้อผิดพลาดในการเริ่มต้นระบบ', true);
+        }
+      }
+
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  config.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              },
+              {
+                get: () => config.surface_color || defaultConfig.surface_color,
+                set: (value) => {
+                  config.surface_color = value;
+                  window.elementSdk.setConfig({ surface_color: value });
+                }
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  config.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              },
+              {
+                get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                set: (value) => {
+                  config.primary_action_color = value;
+                  window.elementSdk.setConfig({ primary_action_color: value });
+                }
+              },
+              {
+                get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+                set: (value) => {
+                  config.secondary_action_color = value;
+                  window.elementSdk.setConfig({ secondary_action_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || defaultConfig.font_family,
+              set: (value) => {
+                config.font_family = value;
+                window.elementSdk.setConfig({ font_family: value });
+              }
+            },
+            fontSizeable: {
+              get: () => config.font_size || defaultConfig.font_size,
+              set: (value) => {
+                config.font_size = value;
+                window.elementSdk.setConfig({ font_size: value });
+              }
+            }
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ["page_title", config.page_title || defaultConfig.page_title],
+            ["form_title", config.form_title || defaultConfig.form_title],
+            ["submit_button_text", config.submit_button_text || defaultConfig.submit_button_text],
+            ["list_title", config.list_title || defaultConfig.list_title]
+          ])
+        });
+      }
+
+      document.getElementById('deviceForm').addEventListener('submit', handleFormSubmit);
+      document.getElementById('searchInput').addEventListener('input', renderDeviceList);
+      document.getElementById('filterHospital').addEventListener('change', renderDeviceList);
+      document.getElementById('filterType').addEventListener('change', renderDeviceList);
+      document.getElementById('filterDepartment').addEventListener('change', renderDeviceList);
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+
+      if (isSubmitting) return;
+
+      if (allDevices.length >= 999) {
+        showToast('ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากถึงขีดจำกัด 999 รายการแล้ว กรุณาลบข้อมูลเก่าก่อน', true);
+        return;
+      }
+
+      isSubmitting = true;
+      const submitButton = document.getElementById('submitButton');
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<span class="loading-spinner"></span>กำลังบันทึก...';
+
+      const deviceData = {
+        hospital: document.getElementById('hospital').value,
+        device_id: document.getElementById('deviceId').value.trim(),
+        device_name: document.getElementById('deviceName').value.trim(),
+        device_type: document.getElementById('deviceType').value,
+        user_name: document.getElementById('userName').value.trim(),
+        department: document.getElementById('department').value,
+        detail: document.getElementById('detail').value.trim(),
+        created_at: new Date().toISOString()
+      };
+
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create(deviceData);
+
+        if (result.isOk) {
+          showToast('บันทึกข้อมูลสำเร็จ');
+          document.getElementById('deviceForm').reset();
+        } else {
+          showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล', true);
+        }
+      }
+
+      isSubmitting = false;
+      submitButton.disabled = false;
+      const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+      submitButton.innerHTML = `<span id="submitButtonText">${config.submit_button_text || defaultConfig.submit_button_text}</span>`;
+    }
+
+    function renderDeviceList() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filterHospital = document.getElementById('filterHospital').value;
+      const filterDept = document.getElementById('filterDepartment').value;
+      const filterType = document.getElementById('filterType').value;
+
+      let filteredDevices = allDevices.filter(device => {
+        const matchesSearch = !searchTerm || 
+          device.device_id.toLowerCase().includes(searchTerm) ||
+          device.device_name.toLowerCase().includes(searchTerm) ||
+          device.user_name.toLowerCase().includes(searchTerm);
+        
+        const matchesHospital = !filterHospital || device.hospital === filterHospital;
+        const matchesDept = !filterDept || device.department === filterDept;
+        const matchesType = !filterType || device.device_type === filterType;
+        
+        return matchesSearch && matchesHospital && matchesDept && matchesType;
+      });
+
+      const deviceList = document.getElementById('deviceList');
+      
+      if (filteredDevices.length === 0) {
+        deviceList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">💻</div>
+            <p class="empty-text">${searchTerm || filterDept ? 'ไม่พบข้อมูลที่ค้นหา' : 'ยังไม่มีข้อมูลอุปกรณ์'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      filteredDevices.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      deviceList.innerHTML = filteredDevices.map(device => `
+        <div class="device-item" data-id="${device.__backendId}">
+          <div class="device-header">
+            <div>
+              <div class="device-id">${escapeHtml(device.device_id)}</div>
+              <div class="device-name">${escapeHtml(device.device_name)}</div>
+            </div>
+            <button class="delete-button" onclick="deleteDevice('${device.__backendId}')">ลบ</button>
+          </div>
+          <div class="device-info">
+            <span class="device-label">โรงพยาบาล:</span> ${escapeHtml(device.hospital)}
+          </div>
+          <div class="device-info">
+            <span class="device-label">ประเภท:</span> ${escapeHtml(device.device_type)}
+          </div>
+          <div class="device-info">
+            <span class="device-label">ผู้ใช้งาน:</span> ${escapeHtml(device.user_name)}
+          </div>
+          <div class="device-info">
+            <span class="device-label">แผนก:</span> <span class="department-badge">${escapeHtml(device.department)}</span>
+          </div>
+          ${device.detail ? `<div class="device-info"><span class="device-label">รายละเอียด:</span> ${escapeHtml(device.detail)}</div>` : ''}
+          <div class="device-info" style="font-size: 12px; color: #a0aec0; margin-top: 8px;">
+            ลงทะเบียนเมื่อ: ${formatDate(device.created_at)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function deleteDevice(backendId) {
+      const device = allDevices.find(d => d.__backendId === backendId);
+      if (!device) return;
+
+      const deviceElement = document.querySelector(`[data-id="${backendId}"]`);
+      if (!deviceElement) return;
+
+      const deleteButton = deviceElement.querySelector('.delete-button');
+      const originalText = deleteButton.textContent;
+      deleteButton.disabled = true;
+      deleteButton.textContent = 'กำลังลบ...';
+
+      if (window.dataSdk) {
+        const result = await window.dataSdk.delete(device);
+        
+        if (result.isOk) {
+          showToast('ลบข้อมูลสำเร็จ');
+        } else {
+          showToast('เกิดข้อผิดพลาดในการลบข้อมูล', true);
+          deleteButton.disabled = false;
+          deleteButton.textContent = originalText;
+        }
+      }
+    }
+
+    function updateDeviceCount() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filterDept = document.getElementById('filterDepartment').value;
+      
+      let filteredCount = allDevices.filter(device => {
+        const matchesSearch = !searchTerm || 
+          device.device_id.toLowerCase().includes(searchTerm) ||
+          device.device_name.toLowerCase().includes(searchTerm) ||
+          device.user_name.toLowerCase().includes(searchTerm);
+        
+        const matchesDept = !filterDept || device.department === filterDept;
+        
+        return matchesSearch && matchesDept;
+      }).length;
+
+      const countText = searchTerm || filterDept 
+        ? `แสดง ${filteredCount} รายการ จากทั้งหมด ${allDevices.length} รายการ`
+        : `ทั้งหมด ${allDevices.length} รายการ`;
+      
+      document.getElementById('deviceCount').textContent = countText;
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${isError ? 'error' : ''} show`;
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    initializeApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a47eda3a688d03a',t:'MTc2NDE0NDgyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
